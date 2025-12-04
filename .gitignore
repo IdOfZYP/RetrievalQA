@@ -1,6 +1,9 @@
 predict_*
 openai_config.txt
 
+.DS_Store
+.idea/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
