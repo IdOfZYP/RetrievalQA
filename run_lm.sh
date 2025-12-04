@@ -5,7 +5,8 @@ max_tokens=100
 doc_top_n=5
 batch_size=1
 seed=20
-limit_input=0
+# 实际使用多少条数据
+limit_input=3
 
 openai_config_path="./openai_config.txt"
 input_data_path="./data/retrievalqa.jsonl"
@@ -19,8 +20,8 @@ declare -a retrieval_modes=("no_retrieval")
 prompt_method="vanilla"
 # prompt_method="TAARE"
 
-declare -a model_names=("TinyLlama/TinyLlama-1.1B-Chat-v1.0" "microsoft/phi-2" "meta-llama/Llama-2-7b-chat-hf" "gpt-3.5-turbo-0125" "gpt-4-0125-preview")
-# declare -a model_names=("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
+#declare -a model_names=("TinyLlama/TinyLlama-1.1B-Chat-v1.0" "microsoft/phi-2" "meta-llama/Llama-2-7b-chat-hf" "gpt-3.5-turbo-0125" "gpt-4-0125-preview")
+declare -a model_names=("TinyLlama/TinyLlama-1.1B-Chat-v1.0")
 
 declare -a data=("retrievalqa")
 # declare -a data=("toolqa" "freshqa" "realtimeqa" "popqa" "triviaqa")
