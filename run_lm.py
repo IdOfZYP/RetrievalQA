@@ -87,14 +87,16 @@ def calculate_tokens(item):
 
 
 def format_context(item, args):
+    """如果always_retrieval，则给item添加证据，否则不加证据。同时计算token数量"""
     if "do_retrieval" in item:
         if item["do_retrieval"] == 1:
             retrieval_result = item["context"][:args.doc_top_n]
 
             if isinstance(retrieval_result[0], str):
-                evidences = [f"[{i+1}] {context}" for i, context in enumerate(retrieval_result)] 
+                evidences = [f"[{i+1}] {context}" for i, context in enumerate(retrieval_result)]
             else:
-                evidences = [f"[{i+1}] {context['title'].strip() if 'title' in context else ''}\n{context['text'].strip() if 'text' in context else ''}" for i, context in enumerate(retrieval_result)] 
+                # map集合
+                evidences = [f"[{i+1}] {context['title'].strip() if 'title' in context else ''}\n{context['text'].strip() if 'text' in context else ''}" for i, context in enumerate(retrieval_result)]
             item["evidence"] = "\n".join(evidences)
 
             calculate_tokens(item)
@@ -108,9 +110,9 @@ def format_context(item, args):
             calculate_tokens(item)
 
 
-def run_batch_inferece(args, input_data, model=None, isOpenAI=None, 
-                       openai_client=None, chat_completions=None):
-    
+def run_batch_inference(args, input_data, model=None, isOpenAI=None,
+                        openai_client=None, chat_completions=None):
+
     for idx in tqdm(range(len(input_data))):
 
         item = input_data[idx]
@@ -118,44 +120,48 @@ def run_batch_inferece(args, input_data, model=None, isOpenAI=None,
         item["fewshot_examples"] = fewshot_examples
 
         prompt_name = get_prompt_name(item, args)
+        # 将证据放到item["evidence"]中
         format_context(item, args)
+        # 替换文本中的占位符
         formatted_prompt = PROMPT_DICT[prompt_name].format_map(item)
-        
+
         # print(f"============= prompt =================")
         # print(f"{formatted_prompt}\n")
 
         if isOpenAI:
             text = call_openai_api(
-                    openai_client=openai_client, 
-                    prompt=formatted_prompt, 
-                    model=args.model_name, 
-                    temperature=args.temperature, 
+                    openai_client=openai_client,
+                    prompt=formatted_prompt,
+                    model=args.model_name,
+                    temperature=args.temperature,
                     top_p=args.top_p,
-                    max_tokens=args.max_tokens, 
+                    max_tokens=args.max_tokens,
                     chat_completions=chat_completions
                 )
             text = postprocess_output(text, formatted_prompt)
         else:
-            predictions = call_model([formatted_prompt], model=model, 
-                                    temperature=args.temperature, 
-                                    top_p=args.top_p, 
+            predictions = call_model([formatted_prompt], model=model,
+                                    temperature=args.temperature,
+                                    top_p=args.top_p,
                                     max_new_tokens=args.max_tokens
                                     )
-            
+
             text = predictions[0]
             text = postprocess_output(text, formatted_prompt)
 
         if "do_retrieval" not in item:
+            # 模型决定是否检索
             item["do_retrieve_pred"] = text
             item["do_retrieval"] = check_string_exist(text)
         else:
+            # 总是检索或者总是不检索
             item["model_prediction"] = text
 
     return input_data
 
 
 def load_model(args):
-    model = LLM(model=args.model_name, 
+    model = LLM(model=args.model_name,
                 tensor_parallel_size=args.world_size,
                 trust_remote_code=True,
                 seed=args.seed
@@ -174,7 +180,7 @@ def load_openai(args):
         chat_completions = True
     else:
         chat_completions = False
-    
+
     return openai_client, chat_completions
 
 
@@ -189,7 +195,7 @@ def main(args):
         openai_client, chat_completions = load_openai(args)
     else:
         model = load_model(args)
-    
+
     ########### load dataset ###########
     input_data = load_file(args.input_data_path)
     print(f"# total input_data: {len(input_data)}")
@@ -210,18 +216,19 @@ def main(args):
             item["do_retrieval"] = 0
     elif args.retrieval_mode == "adaptive_retrieval":
         # prompt model to decide whether to retrieve
-        input_data = run_batch_inferece(
-                    model=model, 
-                    input_data=input_data, 
-                    isOpenAI=isOpenAI, 
-                    openai_client=openai_client, 
-                    chat_completions=chat_completions, 
+        input_data = run_batch_inference(
+                    model=model,
+                    input_data=input_data,
+                    isOpenAI=isOpenAI,
+                    openai_client=openai_client,
+                    chat_completions=chat_completions,
                     args=args
                 )
-        
+
         # reload model before inference
         if not isOpenAI:
             # Delete the llm object and free the memory
+            # 由于刚刚使用模型预测是否需要进行检索，所以此处需要清楚模型的缓存，重新加载
             destroy_model_parallel()
             del model
             gc.collect()
@@ -231,20 +238,20 @@ def main(args):
 
             model = load_model(args)
 
-    
+
     count = sum([item["do_retrieval"] for item in input_data])
     print(f"\n\n ========================== total retrieval: {count} ========================== \n")
 
     ########### Run prediction ###########
-    input_data = run_batch_inferece(
-                    model=model, 
-                    input_data=input_data, 
-                    isOpenAI=isOpenAI, 
-                    openai_client=openai_client, 
-                    chat_completions=chat_completions, 
+    input_data = run_batch_inference(
+                    model=model,
+                    input_data=input_data,
+                    isOpenAI=isOpenAI,
+                    openai_client=openai_client,
+                    chat_completions=chat_completions,
                     args=args
                 )
-    
+
     ########### Calculate metrics ###########
     em_total, f1_total, acc_total, match_total = 0, 0, 0, 0
     for item in input_data:
@@ -283,13 +290,13 @@ def main(args):
 
     total_score = {
         "data_source": args.data_source,
-        "total_data_count": len(input_data), 
+        "total_data_count": len(input_data),
         "retrieval_frequency": total_retrieval,
         "retrieval_rate": round(total_retrieval/len(input_data)*100, 1),
-        "match_score": round(match_total/len(input_data)*100, 1), 
-        "f1_score": round(f1_total/len(input_data)*100, 1), 
-        "em_score": round(em_total/len(input_data)*100, 1), 
-        "accuracy_score": round(acc_total/len(input_data)*100, 1), 
+        "match_score": round(match_total/len(input_data)*100, 1),
+        "f1_score": round(f1_total/len(input_data)*100, 1),
+        "em_score": round(em_total/len(input_data)*100, 1),
+        "accuracy_score": round(acc_total/len(input_data)*100, 1),
         "match_total": match_total,
         "f1_total": f1_total,
         "em_total": em_total,
