@@ -7,17 +7,17 @@ import gc
 from openai import OpenAI, APIError, Timeout, APIConnectionError
 import torch
 from datetime import datetime
-from utils import load_file, save_file_jsonl, metric_max_over_ground_truths,\
-exact_match_score, match, qa_f1_score, save_file_json, \
-num_tokens_from_string, check_string_exist, postprocess_output, \
-PROMPT_DICT, MODEL_PROMPT_KEY_MAPPING, fewshot_examples
+from utils import load_file, save_file_jsonl, metric_max_over_ground_truths, \
+    exact_match_score, match, qa_f1_score, save_file_json, \
+    num_tokens_from_string, check_string_exist, postprocess_output, \
+    PROMPT_DICT, MODEL_PROMPT_KEY_MAPPING, fewshot_examples
 
 
-
-def call_openai_api(openai_client: OpenAI, prompt: [Dict], model="gpt-3.5-turbo-0125", temperature=0.0, top_p=0.95, max_tokens=50, chat_completions=True):
+def call_openai_api(openai_client: OpenAI, prompt: [Dict], model="gpt-3.5-turbo-0125", temperature=0.0, top_p=0.95,
+                    max_tokens=50, chat_completions=True):
     # https://platform.openai.com/docs/guides/text-generation
     if chat_completions:
-    # Chat completions API
+        # Chat completions API
         try:
             response = openai_client.chat.completions.create(
                 model=model,
@@ -71,10 +71,10 @@ def get_prompt_name(item, args):
         elif item["do_retrieval"] == 0:
             prompt_name = f"{prompt_key}_no_retrieval"
     elif args.retrieval_mode == "adaptive_retrieval":
-            if args.prompt_method == "TAARE":
-                prompt_name =  f"{prompt_key}_adaptive_retrieval_TAARE"
-            elif args.prompt_method == "vanilla":
-                prompt_name = f"{prompt_key}_adaptive_retrieval"
+        if args.prompt_method == "TAARE":
+            prompt_name = f"{prompt_key}_adaptive_retrieval_TAARE"
+        elif args.prompt_method == "vanilla":
+            prompt_name = f"{prompt_key}_adaptive_retrieval"
 
     return prompt_name
 
@@ -93,10 +93,12 @@ def format_context(item, args):
             retrieval_result = item["context"][:args.doc_top_n]
 
             if isinstance(retrieval_result[0], str):
-                evidences = [f"[{i+1}] {context}" for i, context in enumerate(retrieval_result)]
+                evidences = [f"[{i + 1}] {context}" for i, context in enumerate(retrieval_result)]
             else:
                 # map集合
-                evidences = [f"[{i+1}] {context['title'].strip() if 'title' in context else ''}\n{context['text'].strip() if 'text' in context else ''}" for i, context in enumerate(retrieval_result)]
+                evidences = [
+                    f"[{i + 1}] {context['title'].strip() if 'title' in context else ''}\n{context['text'].strip() if 'text' in context else ''}"
+                    for i, context in enumerate(retrieval_result)]
             item["evidence"] = "\n".join(evidences)
 
             calculate_tokens(item)
@@ -106,13 +108,12 @@ def format_context(item, args):
             calculate_tokens(item)
 
     elif args.retrieval_mode == "adaptive_retrieval":
-            item["evidence"] = ""
-            calculate_tokens(item)
+        item["evidence"] = ""
+        calculate_tokens(item)
 
 
 def run_batch_inference(args, input_data, model=None, isOpenAI=None,
                         openai_client=None, chat_completions=None):
-
     for idx in tqdm(range(len(input_data))):
 
         item = input_data[idx]
@@ -130,21 +131,21 @@ def run_batch_inference(args, input_data, model=None, isOpenAI=None,
 
         if isOpenAI:
             text = call_openai_api(
-                    openai_client=openai_client,
-                    prompt=formatted_prompt,
-                    model=args.model_name,
-                    temperature=args.temperature,
-                    top_p=args.top_p,
-                    max_tokens=args.max_tokens,
-                    chat_completions=chat_completions
-                )
+                openai_client=openai_client,
+                prompt=formatted_prompt,
+                model=args.model_name,
+                temperature=args.temperature,
+                top_p=args.top_p,
+                max_tokens=args.max_tokens,
+                chat_completions=chat_completions
+            )
             text = postprocess_output(text, formatted_prompt)
         else:
             predictions = call_model([formatted_prompt], model=model,
-                                    temperature=args.temperature,
-                                    top_p=args.top_p,
-                                    max_new_tokens=args.max_tokens
-                                    )
+                                     temperature=args.temperature,
+                                     top_p=args.top_p,
+                                     max_new_tokens=args.max_tokens
+                                     )
 
             text = predictions[0]
             text = postprocess_output(text, formatted_prompt)
@@ -185,9 +186,8 @@ def load_openai(args):
 
 
 def main(args):
-
     isOpenAI = True if args.model_name in \
-        ["text-davinci-003", "gpt-3.5-turbo", "gpt-3.5-turbo-0125", "gpt-4-0125-preview"] else False
+                       ["text-davinci-003", "gpt-3.5-turbo", "gpt-3.5-turbo-0125", "gpt-4-0125-preview"] else False
 
     ########### load model ###########
     openai_client, chat_completions, model = None, None, None
@@ -217,13 +217,13 @@ def main(args):
     elif args.retrieval_mode == "adaptive_retrieval":
         # prompt model to decide whether to retrieve
         input_data = run_batch_inference(
-                    model=model,
-                    input_data=input_data,
-                    isOpenAI=isOpenAI,
-                    openai_client=openai_client,
-                    chat_completions=chat_completions,
-                    args=args
-                )
+            model=model,
+            input_data=input_data,
+            isOpenAI=isOpenAI,
+            openai_client=openai_client,
+            chat_completions=chat_completions,
+            args=args
+        )
 
         # reload model before inference
         if not isOpenAI:
@@ -238,19 +238,18 @@ def main(args):
 
             model = load_model(args)
 
-
     count = sum([item["do_retrieval"] for item in input_data])
     print(f"\n\n ========================== total retrieval: {count} ========================== \n")
 
     ########### Run prediction ###########
     input_data = run_batch_inference(
-                    model=model,
-                    input_data=input_data,
-                    isOpenAI=isOpenAI,
-                    openai_client=openai_client,
-                    chat_completions=chat_completions,
-                    args=args
-                )
+        model=model,
+        input_data=input_data,
+        isOpenAI=isOpenAI,
+        openai_client=openai_client,
+        chat_completions=chat_completions,
+        args=args
+    )
 
     ########### Calculate metrics ###########
     em_total, f1_total, acc_total, match_total = 0, 0, 0, 0
@@ -275,28 +274,29 @@ def main(args):
 
     total_q_tokens = sum([item["q_token_num"] for item in input_data])
     total_context_tokens = sum([item["context_token_num"] for item in input_data])
-    estimate_q_cost = total_q_tokens/1000*0.0005
-    estimate_context_cost = total_context_tokens/1000*0.0005
+    estimate_q_cost = total_q_tokens / 1000 * 0.0005
+    estimate_context_cost = total_context_tokens / 1000 * 0.0005
     estimate_no_retrieval_cost = estimate_q_cost
     estimate_always_retrieval_cost = estimate_q_cost + estimate_context_cost
 
     saved_cost_rate = 1 - estimate_q_cost / (estimate_q_cost + estimate_context_cost)
-    total_retrieval =  sum([item["do_retrieval"] for item in input_data])
+    total_retrieval = sum([item["do_retrieval"] for item in input_data])
 
-    print(f"\n ======= estimate no retrieval (q) API cost: {estimate_no_retrieval_cost}, total tokens #: {total_q_tokens} ================")
-    print(f" ======= estimate always retrieval (q+context) API cost: {estimate_always_retrieval_cost}, total tokens #: {total_context_tokens+total_q_tokens} ================")
+    print(
+        f"\n ======= estimate no retrieval (q) API cost: {estimate_no_retrieval_cost}, total tokens #: {total_q_tokens} ================")
+    print(
+        f" ======= estimate always retrieval (q+context) API cost: {estimate_always_retrieval_cost}, total tokens #: {total_context_tokens + total_q_tokens} ================")
     print(f" ======= total retrieval: [{total_retrieval}/{len(input_data)}] ================\n")
-
 
     total_score = {
         "data_source": args.data_source,
         "total_data_count": len(input_data),
         "retrieval_frequency": total_retrieval,
-        "retrieval_rate": round(total_retrieval/len(input_data)*100, 1),
-        "match_score": round(match_total/len(input_data)*100, 1),
-        "f1_score": round(f1_total/len(input_data)*100, 1),
-        "em_score": round(em_total/len(input_data)*100, 1),
-        "accuracy_score": round(acc_total/len(input_data)*100, 1),
+        "retrieval_rate": round(total_retrieval / len(input_data) * 100, 1),
+        "match_score": round(match_total / len(input_data) * 100, 1),
+        "f1_score": round(f1_total / len(input_data) * 100, 1),
+        "em_score": round(em_total / len(input_data) * 100, 1),
+        "accuracy_score": round(acc_total / len(input_data) * 100, 1),
         "match_total": match_total,
         "f1_total": f1_total,
         "em_total": em_total,
@@ -327,7 +327,6 @@ def main(args):
     save_file_jsonl(input_data, args.output_prediction_path)
 
 
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(allow_abbrev=False)
     parser.add_argument('--openai_config_path', type=str, default=None, help='OpenAI Config file path')
@@ -345,10 +344,9 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, default=0)
     parser.add_argument('--temperature', type=float, default=0.8)
     parser.add_argument('--top_p', type=float, default=0.95)
-    parser.add_argument("--world_size",  type=int, default=1,
+    parser.add_argument("--world_size", type=int, default=1,
                         help="world size to use multiple GPUs.")
 
     args = parser.parse_args()
 
     main(args)
-
