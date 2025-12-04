@@ -8,3 +8,4 @@ openai==1.11.1
 tiktoken==0.5.2
 ipykernel
 pandas
+httpx==0.27.2
