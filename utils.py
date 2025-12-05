@@ -24,6 +24,9 @@ fewshot_examples = (
     "Question: What is Walter de la Pole's occupation?\nAnswer: [Yes].\n\n"
 )
 
+# TinyLlama-1.1B-Chat 是 Chat 模型，必须使用类似：
+# <|system|> ... <|assistant|>
+# 或者 tokenizer 自动生成的模板。
 
 PROMPT_DICT = {
     "openai_chat_adaptive_retrieval_TAARE": (
@@ -156,6 +159,7 @@ control_tokens = ["[Fully supported]", "[Partially supported]", "[No support / C
 
 
 def postprocess_output(pred, input=None):
+    """获取预测的文本，去除特殊字符和原问题本身"""
     if input is not None:
         # remove the original input in the output if have
         if input in pred:
@@ -194,7 +198,7 @@ def postprocess_output(pred, input=None):
 
 
 def check_string_exist(pred):
-
+    """检查字符串中是否有yes"""
     match_strings = set(["\"yes\"", "'yes'", "[\"yes\"]", "['yes']", "[yes]", "yes"])
     pred = pred.replace(",", "")
     pred = pred.replace(".", "")
