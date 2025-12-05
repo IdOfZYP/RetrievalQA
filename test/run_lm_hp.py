@@ -1,12 +1,11 @@
 import argparse
 from tqdm import tqdm
 from typing import Dict
-from vllm import LLM, SamplingParams
-from vllm.model_executor.parallel_utils.parallel_state import destroy_model_parallel
 import gc
 from openai import OpenAI, APIError, Timeout, APIConnectionError
 import torch
 from datetime import datetime
+from transformers import AutoModelForCausalLM, AutoTokenizer, pipeline
 from utils import load_file, save_file_jsonl, metric_max_over_ground_truths, \
     exact_match_score, match, qa_f1_score, save_file_json, \
     num_tokens_from_string, check_string_exist, postprocess_output, \
@@ -50,12 +49,25 @@ def call_openai_api(openai_client: OpenAI, prompt: [Dict], model="gpt-3.5-turbo-
     return result
 
 
-def call_model(prompts, model, temperature=0.8, top_p=0.95, max_new_tokens=50):
-    sampling_params = SamplingParams(
-        temperature=temperature, top_p=top_p, max_tokens=max_new_tokens)
-    preds = model.generate(prompts, sampling_params)
+def call_model(prompts, pipe, temperature=0.8, top_p=0.95, max_new_tokens=50):
+    """使用HuggingFace Pipeline进行推理"""
+    # Pipeline可以处理batch
+    outputs = pipe(
+        prompts,
+        max_new_tokens=max_new_tokens,
+        temperature=temperature,
+        top_p=top_p,
+        do_sample=True if temperature > 0 else False,
+        num_return_sequences=1,
+        pad_token_id=pipe.tokenizer.eos_token_id,
+        return_full_text=False  # 只返回生成的文本，不包含输入
+    )
 
-    preds = [pred.outputs[0].text for pred in preds]
+    # 提取生成的文本
+    if isinstance(prompts, list):
+        preds = [output[0]['generated_text'] for output in outputs]
+    else:
+        preds = [outputs[0]['generated_text']]
 
     return preds
 
@@ -112,14 +124,15 @@ def format_context(item, args):
         calculate_tokens(item)
 
 
-def run_batch_inference(args, input_data, model=None, isOpenAI=None,
+def run_batch_inference(args, input_data, pipe=None, isOpenAI=None,
                         openai_client=None, chat_completions=None):
+    print(f"推理前：{input_data}")
     for idx in tqdm(range(len(input_data))):
 
         item = input_data[idx]
         item["today"] = datetime.today().strftime('%Y-%m-%d')
         item["fewshot_examples"] = fewshot_examples
-
+        # 根据do_retrieval参数是否存在，判断此次是获取判断是否检索的模版名称，还是获取问题模版名称
         prompt_name = get_prompt_name(item, args)
         # 将证据放到item["evidence"]中
         format_context(item, args)
@@ -141,7 +154,7 @@ def run_batch_inference(args, input_data, model=None, isOpenAI=None,
             )
             text = postprocess_output(text, formatted_prompt)
         else:
-            predictions = call_model([formatted_prompt], model=model,
+            predictions = call_model([formatted_prompt], pipe=pipe,
                                      temperature=args.temperature,
                                      top_p=args.top_p,
                                      max_new_tokens=args.max_tokens
@@ -149,27 +162,56 @@ def run_batch_inference(args, input_data, model=None, isOpenAI=None,
 
             text = predictions[0]
             text = postprocess_output(text, formatted_prompt)
-
+        # 用do_retrieval参数区分此次推理结果是判断是否需要检索，还是最终结果
         if "do_retrieval" not in item:
             # 模型决定是否检索
             item["do_retrieve_pred"] = text
-            # 是否检索的结果
+            # 是否检索
             item["do_retrieval"] = check_string_exist(text)
         else:
             # 总是检索或者总是不检索
             item["model_prediction"] = text
-
+    print(f"推理后：{input_data}")
     return input_data
 
 
 def load_model(args):
-    model = LLM(model=args.model_name,
-                tensor_parallel_size=args.world_size,
-                trust_remote_code=True,
-                seed=args.seed
-                )
+    """使用HuggingFace Pipeline加载模型"""
+    print(f"Loading model: {args.model_name}")
 
-    return model
+    # 设置设备
+    device = "cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu"
+    print(f"Using device: {device}")
+
+    # 加载tokenizer和模型
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model_name,
+        trust_remote_code=True
+    )
+
+    # 设置padding token
+    if tokenizer.pad_token is None:
+        tokenizer.pad_token = tokenizer.eos_token
+
+    model = AutoModelForCausalLM.from_pretrained(
+        args.model_name,
+        trust_remote_code=True,
+        torch_dtype=torch.float16,
+        device_map=None,
+        low_cpu_mem_usage=True
+    )
+
+    # 创建pipeline
+    pipe = pipeline(
+        "text-generation",
+        model=model,
+        tokenizer=tokenizer,
+        device="mps",
+    )
+
+    print(f"Model loaded successfully on {device}")
+
+    return pipe
 
 
 def load_openai(args):
@@ -191,11 +233,11 @@ def main(args):
                        ["text-davinci-003", "gpt-3.5-turbo", "gpt-3.5-turbo-0125", "gpt-4-0125-preview"] else False
 
     ########### load model ###########
-    openai_client, chat_completions, model = None, None, None
+    openai_client, chat_completions, pipe = None, None, None
     if isOpenAI:
         openai_client, chat_completions = load_openai(args)
     else:
-        model = load_model(args)
+        pipe = load_model(args)
 
     ########### load dataset ###########
     input_data = load_file(args.input_data_path)
@@ -218,7 +260,7 @@ def main(args):
     elif args.retrieval_mode == "adaptive_retrieval":
         # prompt model to decide whether to retrieve
         input_data = run_batch_inference(
-            model=model,
+            pipe=pipe,
             input_data=input_data,
             isOpenAI=isOpenAI,
             openai_client=openai_client,
@@ -228,23 +270,21 @@ def main(args):
 
         # reload model before inference
         if not isOpenAI:
-            # Delete the llm object and free the memory
-            # 由于刚刚使用模型预测是否需要进行检索，所以此处需要清楚模型的缓存，重新加载
-            destroy_model_parallel()
-            del model
+            # 清理内存并重新加载模型
+            print("Cleaning up memory and reloading model...")
+            del pipe
             gc.collect()
-            torch.cuda.empty_cache()
-            torch.distributed.destroy_process_group()
-            print("Successfully delete the llm pipeline and free the GPU memory!")
+            torch.cuda.empty_cache() if torch.cuda.is_available() else None
+            print("Successfully cleaned up memory!")
 
-            model = load_model(args)
+            pipe = load_model(args)
 
     count = sum([item["do_retrieval"] for item in input_data])
     print(f"\n\n ========================== total retrieval: {count} ========================== \n")
 
     ########### Run prediction ###########
     input_data = run_batch_inference(
-        model=model,
+        pipe=pipe,
         input_data=input_data,
         isOpenAI=isOpenAI,
         openai_client=openai_client,
@@ -330,23 +370,26 @@ def main(args):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(allow_abbrev=False)
-    parser.add_argument('--openai_config_path', type=str, default=None, help='OpenAI Config file path')
+    parser.add_argument('--openai_config_path', type=str, default='../openai_config.txt',
+                        help='OpenAI Config file path')
     parser.add_argument('--data_source', type=str, default="retrievalqa")
-    parser.add_argument('--retrieval_mode', type=str, default="no_retrieval")
-    parser.add_argument('--input_data_path', type=str, default=None, help='Input data path')
-    parser.add_argument('--output_score_path', type=str, default=None, help='Output json file path')
-    parser.add_argument('--output_prediction_path', type=str, default=None, help='Output jsonl file path')
-    parser.add_argument('--model_name', type=str, default='gpt-3.5-turbo-0125', help='OpenAI model name')
-    parser.add_argument('--max_tokens', type=int, default=50)
-    parser.add_argument('--batch_size', type=int, default=5)
+    parser.add_argument('--retrieval_mode', type=str, default="adaptive_retrieval")
+    parser.add_argument('--input_data_path', type=str, default="../data/retrievalqa.jsonl", help='Input data path')
+    parser.add_argument('--output_score_path', type=str, default="./output_score_path.jsonl",
+                        help='Output json file path')
+    parser.add_argument('--output_prediction_path', type=str, default="./output_prediction_path.jsonl",
+                        help='Output jsonl file path')
+    parser.add_argument('--model_name', type=str, default='TinyLlama/TinyLlama-1.1B-Chat-v1.0', help='Model name')
+    parser.add_argument('--max_tokens', type=int, default=100)
+    parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--doc_top_n', type=int, default=5)
     parser.add_argument('--limit_input', type=int, default=3)
     parser.add_argument('--prompt_method', type=str, default="vanilla")
-    parser.add_argument('--seed', type=int, default=0)
-    parser.add_argument('--temperature', type=float, default=0.8)
-    parser.add_argument('--top_p', type=float, default=0.95)
+    parser.add_argument('--seed', type=int, default=20)
+    parser.add_argument('--temperature', type=float, default=0.0)
+    parser.add_argument('--top_p', type=float, default=1.0)
     parser.add_argument("--world_size", type=int, default=1,
-                        help="world size to use multiple GPUs.")
+                        help="world size to use multiple GPUs (not used in HF Pipeline version)")
 
     args = parser.parse_args()
 
