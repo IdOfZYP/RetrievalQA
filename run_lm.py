@@ -153,6 +153,7 @@ def run_batch_inference(args, input_data, model=None, isOpenAI=None,
         if "do_retrieval" not in item:
             # 模型决定是否检索
             item["do_retrieve_pred"] = text
+            # 是否检索的结果
             item["do_retrieval"] = check_string_exist(text)
         else:
             # 总是检索或者总是不检索
