@@ -1,0 +1,31 @@
+{
+  "data_source": "realtimeqa",
+  "question_id": "realtimeqa_20231013_1",
+  "question": "What percentage of couples are 'sleep divorced', according to new research?",
+  "ground_truth": [
+    "15%"
+  ],
+  "context": [
+    {
+      "title": "Do We Sleep Longer When We Share a Bed?",
+      "text": "1.4% of respondents have started a sleep divorce, or sleeping separately from their partner, and maintained it in the past year. Adults who have ..."
+    },
+    {
+      "title": "Study Says One-Third of Americans Choose 'Sleep Divorce'",
+      "text": "'” CBS News: “More than a third of Americans have a \"sleep divorce,\" survey finds.”"
+    },
+    {
+      "title": "Why science says separate beds, or sleep divorce, is the ...",
+      "text": "New research from the University of Michigan finds that it's actually more beneficial for couples to sleep apart than together, ..."
+    },
+    {
+      "title": "Is it Time for a Sleep Divorce?",
+      "text": "Curious what percentage of couples sleep separately? According to a recent survey by the National Sleep Foundation, one in 10 couples sleep ..."
+    },
+    {
+      "title": "than a third of Americans have a \"sleep divorce,\" survey finds",
+      "text": "The group's survey of 2,005 adults in the U.S. found that 43% of millennials engage in sleep divorce, followed by 33% of those in Generation X, ..."
+    }
+  ],
+  "prompt_token_num": 14
+}

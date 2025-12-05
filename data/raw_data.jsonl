@@ -1,0 +1,187 @@
+{
+  "data_source": "popqa",
+  "question_id": "popqa_3994636",
+  "question": "What is Edward Corser's occupation?",
+  "ground_truth": [
+    "politician",
+    "political leader",
+    "political figure",
+    "polit.",
+    "pol"
+  ],
+  "context": [
+    {
+      "id": "30588349",
+      "title": "Edward Corser",
+      "text": " Corser was born at Upton Cressett, near Birmingham in England, and was educated in Worcester. He migrated to Brisbane, Queensland with his family in 1864 and worked for three years on the Maryborough Sugar Company's plantation. He then worked as a clerk for the Commercial Banking Company of Sydney, variously stationed in Maryborough, Brisbane and Gayndah, rising to become acting manager of the Gayndah branch at the age of 21. In 1872, he opened his own wholesale merchant business, Corser and Co. Ltd., which became a \"large commercial establishment\" at Maryborough selling wine, spirits and general merchandise, and continued to be managed by one of his sons after he entered ",
+      "score": "1.8303025"
+    },
+    {
+      "id": "30588348",
+      "title": "Edward Corser",
+      "text": " Edward Bernard Cresset Corser (1852 &ndash; 31 July 1928) was an Australian politician. He was a Liberal Party member of the Queensland Legislative Assembly for Maryborough from 1909 to 1915 and a Commonwealth Liberal Party and then Nationalist Party member of the Australian House of Representatives from 1915 until his death.",
+      "score": "1.7874286"
+    },
+    {
+      "id": "30588350",
+      "title": "Edward Corser",
+      "text": " Corser was a co-founder and president of the Maryborough Chamber of Commerce, a long-serving member and nine-year chairman of the Burrum Divisional Board, president of the Maryborough Harbour Board, president of the Western Railway Association, one of the original shareholders of the Maryborough Co-operative Dairy Association Ltd., and was a member and president of the Maryborough Grammar School board and local hospitals' committee. As a prominent local figure prior to his entry into politics, he championed the construction of the Nanango railway line, Gayndah railway line and the failed Port of Urangan project. He was a supporter of both Federation and the White Australia Policy and was a strong protectionist.",
+      "score": "1.7119396"
+    },
+    {
+      "id": "1992935",
+      "title": "Corser",
+      "text": "Bernard Corser, (1882–1967) Australian politician ; Edward Corser, (1852–1928) Australian politician ; Frederick Corser, (1849–1924) American architect ; Rodger Corser, (born 1973) Australian actor ; Thomas Corser, (1793–1876) British clergyman ; Troy Corser, (born 1971) Australian motorcycle racer Corser is a surname, and may refer to: ",
+      "score": "1.6155844"
+    },
+    {
+      "id": "30588412",
+      "title": "Bernard Corser",
+      "text": " Corser was born at Maryborough in 1882 to Edward Corser and Mary Jane (née Stewart). He was educated at Maryborough Christian Brothers' School, Riverview College, Sydney, and returned to Queensland to study at Queensland Agricultural College, Gatton.",
+      "score": "1.516441"
+    },
+    {
+      "title": "Edward Corser",
+      "text": "Edward Corser\n\nEdward Bernard Cresset Corser (1852 – 31 July 1928) was an Australian politician. He was a Liberal Party member of the Queensland Legislative Assembly for Maryborough from 1909 to 1915 and a Commonwealth Liberal Party and then Nationalist Party member of the Australian House of Representatives from 1915 until his death."
+    },
+    {
+      "title": "Bernard Corser",
+      "text": "Bernard Corser\n\nBernard Henry Corser (4 January 1882 – 15 December 1967) was a politician in Queensland, Australia. He was a member of the Queensland Legislative Assembly from 1912 to 1928 and a member of the Australian House of Representatives from 1928 to 1954."
+    },
+    {
+      "title": "Charles Joseph Booker",
+      "text": "Charles Joseph Booker\n\nCharles Joseph Booker (3 June 1865 – 4 June 1925) was a member of the Queensland Legislative Assembly."
+    },
+    {
+      "title": "William Mitchell (Australian politician)",
+      "text": "William Mitchell (Australian politician)\n\nWilliam Mitchell (March 1850 - 21 May 1923) was a member of the Queensland Legislative Assembly."
+    },
+    {
+      "title": "Andrew Fisher",
+      "text": ""
+    },
+    {
+      "id": "25632923",
+      "title": "John M. Corse",
+      "text": " Corse was born in Pittsburgh, Pennsylvania, but moved at the age of seven with his family to Burlington in the Iowa Territory. His father, John Lockwood Corse, served six terms as the mayor of that town and established a prosperous book and stationery business. Young Corse became a partner in the family business. He was appointed to the United States Military Academy and studied there for two years. Leaving West Point in 1855, Corse chose not to stay in the military, but instead attended a law school in Albany, New York, and passed his bar exam. He later returned to Iowa and was nominated as the new state's lieutenant governor by the Iowa Democratic Party. In 1860, he unsuccessfully ran for secretary of state.",
+      "score": "1.462837"
+    },
+    {
+      "id": "30588411",
+      "title": "Bernard Corser",
+      "text": " Bernard Henry Corser (4 January 1882 &ndash; 15 December 1967) was a politician in Queensland, Australia. He was a member of the Queensland Legislative Assembly from 1912 to 1928 and a member of the Australian House of Representatives from 1928 to 1954.",
+      "score": "1.461197"
+    },
+    {
+      "id": "12672278",
+      "title": "Edward Gonner",
+      "text": " Gonner was born on 5 March 1862 in Mayfair, London, to Peter Kersey Gonner, a silk mercer, and Elizabeth Carter. He attended Merchant Taylors' School in London, before matriculating at Lincoln College, Oxford in 1880, graduating B.A. in 1884.",
+      "score": "1.4558742"
+    },
+    {
+      "id": "15345032",
+      "title": "Eskdale, Maryborough",
+      "text": " 1868 James Dowzer retired to a dairy farm near Tiaro and Eskdale was acquired by solicitor Edward Corser, who had arrived in Brisbane in 1863 and moved to Maryborough the following year. The house was reportedly not yet finished when the Corser family moved in, and they named it as a reminder of Eskdale in the Lake District of Northern England. Corser died in 1874, and his son, Edward Bernard Corser, inherited the property. E. B. Corser was a prominent local merchant, establishing the business of Corser and Co., and later a successful politician, serving in both the Legislative Assembly of Queensland and Australian House of Representatives. E. ",
+      "score": "1.4473352"
+    },
+    {
+      "id": "3116688",
+      "title": "Rodger Corser",
+      "text": " Corser's big role came in 1998, when he was cast in the leading role (from a field of 6,000) in the Australian production of the musical Rent. Corser portrayed the role of Roger, an HIV-positive musician. The show played seasons in Sydney and Melbourne and launched Corser into a successful career in television. His other theatre credits include Leader of the Pack and Below. In 2009, he took to the stage in the theatre production Secret Bridesmaids' Business. Corser played Detective Senior Constable George Newhouse in the final four episodes of Water Rats in 2001. Corser played Peter Johnson in the Australian drama ",
+      "score": "1.4344323"
+    },
+    {
+      "id": "15345033",
+      "title": "Eskdale, Maryborough",
+      "text": " Corser died at home at Eskdale while still a serving federal MP in 1928, and Eskdale was transferred to one of his sons, Edward Stewart Corser. E. S. Corser retained ownership until 1961, and it remained in the Corser family until October 1975 when it was bought by Peter and Jacqueline Holtorf. The Holtorfs used the residence as their family home until 1999 when they converted the house into a Bed and Breakfast. The original section of the house has been authentically restored and is used for guests. The house originally stood on five acres of land on which there were three tennis courts, stables and gymnasium all ",
+      "score": "1.4337004"
+    },
+    {
+      "id": "30588351",
+      "title": "Edward Corser",
+      "text": " In 1909, he was elected to the Legislative Assembly of Queensland as the member for the multi-member seat of Maryborough, and when it became a single-member seat in 1912 was re-elected by only 10 votes. A by-election was ordered, which he was eventually declared to have won by 2 votes; a further challenge did not proceed for procedural reasons. He was defeated at the 1915 state election. His son, Bernard Corser, sat in the Legislative Assembly along with him as the member for Burnett. In 1915, as the candidate of the conservative Commonwealth Liberal Party, he transferred to federal Parliament by winning the ",
+      "score": "1.4275954"
+    },
+    {
+      "id": "29442523",
+      "title": "Edward Sexton",
+      "text": " Edward Sexton (born 9 November 1942) is a British Savile Row tailor, fashion designer and manufacturing consultant. Sexton has been called a key player in the history of Savile Row.",
+      "score": "1.4172117"
+    },
+    {
+      "id": "13563778",
+      "title": "Edward",
+      "text": "Edward Barker, English cartoonist who signed his drawings simply as Edward ; Edward Blishen, English author ; Ed Byrne (academic), Principal of King's College London and former Vice-Chancellor of Monash University ; Edward Duyker (born 1955), Australian historian ; Edward Dutton, English author ; Edward Elgar (1857–1934), English composer ; Edward Gamble, English comedian ; Edward Gibbons, English musician ; Edward Gorey, American illustrator ; Edward Gould, English animator and creator of Eddsworld ; Edward Grimes, one of the two members of Irish pop duo Jedward ; Edward Hopper (1882–1967), American realist painter ; Edward Jayakody (born 1952), Sri Lankan Sinhala musician and composer ; Edward Killy, American filmmaker ; Edward Daniel Leahy, Irish painter ; Edward MacDowell (1860–1908), American composer and pianist ; Edward Norton (born 1969), American actor ; Edward Platt, (1916-1974), American actor ; Edward John David \"Eddie\" Redmayne (born 1982), English actor ; Edward Said (1935–2003), Palestinian-American academic ; Ed Sheeran, English singer-songwriter and musician ; Edward van de Vendel, Dutch author of children's literature ; Edward \"Eddie\" Van Halen, Dutch-American musician ; Eddie Vedder, American singer, musician, songwriter ; Edward W. Hardy (born 1992), American composer, musician, and producer ",
+      "score": "1.4157951"
+    },
+    {
+      "id": "26691588",
+      "title": "Edward Stevenson (costume designer)",
+      "text": " Edward Manson Stevenson was born in Pocatello, Idaho on May 13, 1906 to Jennie Uhland Stevenson (née Dolly) and Andrew Burtner Stevenson. Andrew worked for the Oregon Shortline Railroad, a subsidiary of Union Pacific, rising from dispatch clerk to division superintendent. He served a term in 1903 as senator from Bannock County in the Idaho state legislature and was the Republican nominee in 1907 for Pocatello mayor. Andrew's political activity was often limited by time spent fulfilling his duties with the railroad, duties which included a great deal of travel. Jennie, a widowed former schoolteacher, had two sons from her first marriage ",
+      "score": "1.4082531"
+    },
+    {
+      "id": "10161283",
+      "title": "Edward Sels",
+      "text": " Edward Sels (born 27 August 1941 at Vorselaar, Belgium) is a former Belgian professional road bicycle racer. He was professional from 1963 to 1972, winning 35 races. He was road champion of Belgium in 1961 (Military) and 1964. He won seven stages in the Tour de France and one in the Giro d'Italia. He wore the yellow jersey for two days in the 1964 Tour de France. His sister, Rosa Sels, was a cyclist too.",
+      "score": "1.4040847"
+    },
+    {
+      "id": "28071574",
+      "title": "Edward Henry Corbould",
+      "text": "(web version: ) ",
+      "score": "1.4020488"
+    },
+    {
+      "id": "9244369",
+      "title": "Edward Morris (basketball)",
+      "text": " Edward Bernard Morris Jr. (born May 4, 1984) is a US-born Japanese professional basketball player for the Yokohama B-Corsairs in Japan. He played college basketball for the Pittsburg State University Gorillas.",
+      "score": "1.4005889"
+    },
+    {
+      "id": "3116687",
+      "title": "Rodger Corser",
+      "text": " Corser graduated from Deakin University in 1996 with an Honours B.A. in Media Studies. He formed a band called Tender Prey when he was 16. They played their majority of gigs at the Shoppingtown Hotel, Doncaster, Victoria. He was also lead vocalist in a band called Stone the Crows. They played Rolling Stones and Black Crowes covers as well as many original songs. They released \"Perfect Face\" on a Nu-Music CD in the mid-1990s. Corser was also the lead vocalist in a 4-piece cover band called \"Sideshow Bob\" that played around a few Melbourne pubs during the mid-late 90s (1995–1996) – namely at places like the Royal Hotel in Essendon, Victoria, Australia.",
+      "score": "1.3986468"
+    },
+    {
+      "id": "7055252",
+      "title": "Edward Augustus Brackett",
+      "text": "  Edward Augustus Brackett (October 1, 1818 – March 15, 1908) was a self-taught American sculptor, author, and conservationist. Brackett was born in Vassalboro, Maine to Reuben and Elizabeth (Starkey) Brackett, and moved with his parents in the spring of 1837 to Cincinnati, where he started work as a sculptor. In 1839 he showed a pair of portrait busts at the Cincinnati Academy of Fine Arts, and subsequently moved to New York City. In 1841, after roughly two years in New York, he moved to Boston with an introduction from his friend William Cullen Bryant, where from 1843 he lived in Winchester, ",
+      "score": "1.3971109"
+    }
+  ],
+  "param_knowledge_answerable": 1
+}
+
+{
+  "data_source": "realtimeqa",
+  "question_id": "realtimeqa_20231013_1",
+  "question": "What percentage of couples are 'sleep divorced', according to new research?",
+  "ground_truth": [
+    "15%"
+  ],
+  "context": [
+    {
+      "title": "Do We Sleep Longer When We Share a Bed?",
+      "text": "1.4% of respondents have started a sleep divorce, or sleeping separately from their partner, and maintained it in the past year. Adults who have ..."
+    },
+    {
+      "title": "Study Says One-Third of Americans Choose 'Sleep Divorce'",
+      "text": "'” CBS News: “More than a third of Americans have a \"sleep divorce,\" survey finds.”"
+    },
+    {
+      "title": "Why science says separate beds, or sleep divorce, is the ...",
+      "text": "New research from the University of Michigan finds that it's actually more beneficial for couples to sleep apart than together, ..."
+    },
+    {
+      "title": "Is it Time for a Sleep Divorce?",
+      "text": "Curious what percentage of couples sleep separately? According to a recent survey by the National Sleep Foundation, one in 10 couples sleep ..."
+    },
+    {
+      "title": "than a third of Americans have a \"sleep divorce,\" survey finds",
+      "text": "The group's survey of 2,005 adults in the U.S. found that 43% of millennials engage in sleep divorce, followed by 33% of those in Generation X, ..."
+    }
+  ],
+  "param_knowledge_answerable": 0
+}
