@@ -7,7 +7,6 @@ from collections import Counter
 import numpy as np
 import tiktoken
 
-
 MODEL_PROMPT_KEY_MAPPING = {
     "TinyLlama/TinyLlama-1.1B-Chat-v1.0": "tinyllama",
     "microsoft/phi-2": "phi2",
@@ -15,7 +14,6 @@ MODEL_PROMPT_KEY_MAPPING = {
     "gpt-3.5-turbo-0125": "openai_chat",
     "gpt-4-0125-preview": "openai_chat",
 }
-
 
 fewshot_examples = (
     "Question: what is the water boiling point?\nAnswer: [No].\n\n"
@@ -27,18 +25,20 @@ fewshot_examples = (
 # TinyLlama-1.1B-Chat 是 Chat 模型，必须使用类似：
 # <|system|> ... <|assistant|>
 # 或者 tokenizer 自动生成的模板。
-
+# 4个模型
+# 每个模型有四种模版：vanilla询问是否需要检索、TA-ARE询问是否需要检索、有检索内容的询问、无检索内容的询问
+# todo 还有最下面的四个模版不知道是干嘛的
 PROMPT_DICT = {
     "openai_chat_adaptive_retrieval_TAARE": (
         "Today is {today}. Given a question, determine whether you need to retrieve external resources, such as real-time search engines, Wikipedia, or databases, to answer the question correctly. Only answer \"[Yes]\" or \"[No]\".\n\n"
         "Here are some examples:\n\n"
         "{fewshot_examples}\n\n"
-        "Question: {question}\n" 
+        "Question: {question}\n"
         "Answer:"
     ),
     "openai_chat_adaptive_retrieval": (
         "Given a question, determine whether you need to retrieve external resources, such as real-time search engines, Wikipedia, or databases, to answer the question correctly. Only answer \"[Yes]\" or \"[No]\".\n\n"
-        "Question: {question}\n" 
+        "Question: {question}\n"
         "Answer:"
     ),
     "openai_chat_no_retrieval": (
@@ -48,7 +48,7 @@ PROMPT_DICT = {
         "Please answer the question based on the provided context. Only include the answer in your response and try to be concise. If you do not know the answer, just say \"I don't know\".\n\n"
         "Paragraph:\n{evidence}\n\n"
         "Question: {question}\n"
-        "Answer:" 
+        "Answer:"
     ),
     "llama_adaptive_retrieval_TAARE": (
         "<s>[INST] <<SYS>>\n"
@@ -57,7 +57,7 @@ PROMPT_DICT = {
         "Today is {today}. Given a question, determine whether you need to retrieve external resources, such as real-time search engines, Wikipedia, or databases, to answer the question correctly. Only answer \"[Yes]\" or \"[No]\".\n\n"
         "Here are some examples:\n\n"
         "{fewshot_examples}\n\n"
-        "Question: {question}\n" 
+        "Question: {question}\n"
         "Answer:[/INST]"
     ),
     "llama_adaptive_retrieval": (
@@ -65,7 +65,7 @@ PROMPT_DICT = {
         "You are a helpful assistant to answer questions.\n"
         "<</SYS>>\n\n"
         "Given a question, determine whether you need to retrieve external resources, such as real-time search engines, Wikipedia, or databases, to answer the question correctly. Only answer \"[Yes]\" or \"[No]\".\n\n"
-        "Question: {question}\n" 
+        "Question: {question}\n"
         "Answer:[/INST]"
     ),
     "llama_no_retrieval": (
@@ -81,7 +81,7 @@ PROMPT_DICT = {
         "Please answer the question based on the provided context. Only include the answer in your response and try to be concise. If you do not know the answer, just say \"I don't know\".\n\n"
         "Paragraph:\n{evidence}\n\n"
         "Question: {question}\n"
-        "Answer:[/INST]" 
+        "Answer:[/INST]"
     ),
     "phi2_adaptive_retrieval_TAARE": (
         "Instruct: Today is {today}. Given a question, determine whether you need to retrieve external resources, such as real-time search engines, Wikipedia, or databases, to answer the question correctly. Only answer \"[Yes]\" or \"[No]\".\n\nHere are some examples:\n\n{fewshot_examples}\n\nQuestion: {question}\n"
@@ -143,7 +143,6 @@ PROMPT_DICT = {
     ),
 }
 
-
 # for Self-RAG
 rel_tokens_names = ["[Irrelevant]", "[Relevant]"]
 retrieval_tokens_names = ["[No Retrieval]",
@@ -154,8 +153,10 @@ ground_tokens_names = ["[Fully supported]",
                        "[Partially supported]", "[No support / Contradictory]"]
 other_special_tokens = ["<s>", "</s>", "[PAD]",
                         "<unk>", "<paragraph>", "</paragraph>"]
-control_tokens = ["[Fully supported]", "[Partially supported]", "[No support / Contradictory]", "[No Retrieval]", "[Retrieval]",
-                  "[Irrelevant]", "[Relevant]", "<paragraph>", "</paragraph>", "[Utility:1]", "[Utility:2]", "[Utility:3]", "[Utility:4]", "[Utility:5]"]
+control_tokens = ["[Fully supported]", "[Partially supported]", "[No support / Contradictory]", "[No Retrieval]",
+                  "[Retrieval]",
+                  "[Irrelevant]", "[Relevant]", "<paragraph>", "</paragraph>", "[Utility:1]", "[Utility:2]",
+                  "[Utility:3]", "[Utility:4]", "[Utility:5]"]
 
 
 def postprocess_output(pred, input=None):
@@ -172,15 +173,15 @@ def postprocess_output(pred, input=None):
     if "<|im_start|>" in pred:
         idx = pred.rfind("<|im_start|>assistant")
         if idx != -1:
-            pred = pred[idx+len("<|im_start|>assistant"):]  
+            pred = pred[idx + len("<|im_start|>assistant"):]
     pred = pred.replace("<|im_end|>", "")
 
     # for TinyLlama
     if "<|assistant|>" in pred:
         idx = pred.rfind("<|assistant|>")
         if idx != -1:
-            pred = pred[idx+len("<|assistant|>"):]
-        pred = pred.replace("<|user|>", "") 
+            pred = pred[idx + len("<|assistant|>"):]
+        pred = pred.replace("<|user|>", "")
         pred = pred.replace("<|assistant|>", "")
         pred = pred.replace("<|system|>", "")
 
@@ -188,7 +189,7 @@ def postprocess_output(pred, input=None):
     if "[/INST]" in pred:
         idx = pred.rfind("Answer:[/INST]")
         if idx != -1:
-            pred = pred[idx+len("Answer:[/INST]"):]  
+            pred = pred[idx + len("Answer:[/INST]"):]
 
     pred = pred.replace("\n", " ")
     # remove extra white space
@@ -274,7 +275,7 @@ def load_file(file_path):
 def save_file_jsonl(data, fp):
     parent_folder = extract_folder_path(fp)
     pathlib.Path(parent_folder).mkdir(parents=True, exist_ok=True)
-    print(parent_folder)
+    print(f"parent_folder: {parent_folder}")
 
     with jsonlines.open(fp, mode='w') as writer:
         writer.write_all(data)
@@ -287,7 +288,7 @@ def save_file_json(data, fp):
 
     with open(fp, 'w') as f:
         json.dump(data, f, indent=2, separators=(',', ': '))
-        
+
 
 def exact_match_score(prediction, ground_truth):
     return (normalize_answer(prediction) == normalize_answer(ground_truth))
@@ -318,7 +319,7 @@ def f1(decoded_preds, decoded_labels):
             if len(answers) == 0:
                 return 0
             f1_all.append(np.max([qa_f1_score(prediction, gt)
-                          for gt in answers]))
+                                  for gt in answers]))
         else:
             f1_all.append(qa_f1_score(prediction, answers))
     return 100 * np.mean(f1_all)
@@ -337,20 +338,21 @@ def qa_f1_score(prediction, ground_truth):
     return f1
 
 
+ARTICLES_REGEX = re.compile(r'\b(a|an|the)\b')
+PUNCTUATION_SET = set(string.punctuation)
+
+
 def normalize_answer(s):
-    def remove_articles(text):
-        return re.sub(r'\b(a|an|the)\b', ' ', text)
+    # Step 1: 转小写
+    s = s.lower()
+    # Step 2: 去除标点
+    s = ''.join(ch for ch in s if ch not in PUNCTUATION_SET)
+    # Step 3: 去除冠词
+    s = ARTICLES_REGEX.sub(' ', s)
+    # Step 4: 规范化空格
+    s = ' '.join(s.split())
 
-    def white_space_fix(text):
-        return ' '.join(text.split())
-
-    def remove_punc(text):
-        exclude = set(string.punctuation)
-        return ''.join(ch for ch in text if ch not in exclude)
-
-    def lower(text):
-        return text.lower()
-    return white_space_fix(remove_articles(remove_punc(lower(s))))
+    return s
 
 
 def match(prediction, ground_truth):
