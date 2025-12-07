@@ -126,7 +126,7 @@ def format_context(item, args):
 
 def run_batch_inference(args, input_data, pipe=None, isOpenAI=None,
                         openai_client=None, chat_completions=None):
-    print(f"推理前：{input_data}")
+    # print(f"推理前：{input_data}")
     for idx in tqdm(range(len(input_data))):
 
         item = input_data[idx]
@@ -171,7 +171,7 @@ def run_batch_inference(args, input_data, pipe=None, isOpenAI=None,
         else:
             # 总是检索或者总是不检索
             item["model_prediction"] = text
-    print(f"推理后：{input_data}")
+    # print(f"推理后：{input_data}")
     return input_data
 
 
@@ -297,10 +297,13 @@ def main(args):
     for item in input_data:
         pred = item["model_prediction"]
         gts = item["ground_truth"]
-
+        # EM Score (Exact Match)标准化后预测值与真实列表中的一个值完全匹配 要求答案精确
         em_score = 1.0 if metric_max_over_ground_truths(exact_match_score, pred, gts) else 0.0
+        # 预测值包含第一个真实值，原始包含
         accuracy_score = 1.0 if gts[0] in pred else 0.0
+        # 标准化后预测值包含真实值的任意一种
         match_score = match(pred, gts)  # loose match
+        # 词重叠度 QA任务标准指标
         f1_score = metric_max_over_ground_truths(qa_f1_score, pred, gts)
 
         item["em_score"] = em_score
@@ -373,17 +376,17 @@ if __name__ == '__main__':
     parser.add_argument('--openai_config_path', type=str, default='../openai_config.txt',
                         help='OpenAI Config file path')
     parser.add_argument('--data_source', type=str, default="retrievalqa")
-    parser.add_argument('--retrieval_mode', type=str, default="adaptive_retrieval")
+    parser.add_argument('--retrieval_mode', type=str, default="no_retrieval")
     parser.add_argument('--input_data_path', type=str, default="../data/retrievalqa.jsonl", help='Input data path')
-    parser.add_argument('--output_score_path', type=str, default="./output_score_path.jsonl",
+    parser.add_argument('--output_score_path', type=str, default="./output_score_path_full.jsonl",
                         help='Output json file path')
-    parser.add_argument('--output_prediction_path', type=str, default="./output_prediction_path.jsonl",
+    parser.add_argument('--output_prediction_path', type=str, default="./output_prediction_path_full.jsonl",
                         help='Output jsonl file path')
     parser.add_argument('--model_name', type=str, default='TinyLlama/TinyLlama-1.1B-Chat-v1.0', help='Model name')
     parser.add_argument('--max_tokens', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--doc_top_n', type=int, default=5)
-    parser.add_argument('--limit_input', type=int, default=3)
+    parser.add_argument('--limit_input', type=int, default=0)
     parser.add_argument('--prompt_method', type=str, default="vanilla")
     parser.add_argument('--seed', type=int, default=20)
     parser.add_argument('--temperature', type=float, default=0.0)
