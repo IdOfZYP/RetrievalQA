@@ -197,7 +197,7 @@ def load_model(args):
         args.model_name,
         trust_remote_code=True,
         torch_dtype=torch.float16,
-        device_map=None,
+        device_map="auto",
         low_cpu_mem_usage=True
     )
 
@@ -206,7 +206,6 @@ def load_model(args):
         "text-generation",
         model=model,
         tokenizer=tokenizer,
-        device=device,
     )
 
     print(f"Model loaded successfully on {device}")
