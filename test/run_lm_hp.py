@@ -302,7 +302,8 @@ def main(args):
         # 预测值包含第一个真实值，原始包含
         accuracy_score = 1.0 if gts[0] in pred else 0.0
         # 标准化后预测值包含真实值的任意一种
-        match_score = match(pred, gts)  # loose match
+        # match accuracy（匹配准确率） 评估 QA 性能，该指标衡量标准答案是否包含在模型预测中，而不是严格的精确匹配。
+        match_score = match(pred, gts)  # loose match 宽松匹配
         # 词重叠度 QA任务标准指标
         f1_score = metric_max_over_ground_truths(qa_f1_score, pred, gts)
 
@@ -336,6 +337,7 @@ def main(args):
         "data_source": args.data_source,
         "total_data_count": len(input_data),
         "retrieval_frequency": total_retrieval,
+        # retrieval accuracy检索准确率（需不需要检索）
         "retrieval_rate": round(total_retrieval / len(input_data) * 100, 1),
         "match_score": round(match_total / len(input_data) * 100, 1),
         "f1_score": round(f1_total / len(input_data) * 100, 1),
