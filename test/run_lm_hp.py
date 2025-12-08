@@ -206,7 +206,7 @@ def load_model(args):
         "text-generation",
         model=model,
         tokenizer=tokenizer,
-        device="mps",
+        device=device,
     )
 
     print(f"Model loaded successfully on {device}")
