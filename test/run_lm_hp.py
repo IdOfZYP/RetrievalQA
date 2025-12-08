@@ -333,11 +333,15 @@ def main(args):
     print(f" ======= total retrieval: [{total_retrieval}/{len(input_data)}] ================\n")
 
     total_score = {
+        # 数据源名称
         "data_source": args.data_source,
+        # 数据数量
         "total_data_count": len(input_data),
+        # 检索次数
         "retrieval_frequency": total_retrieval,
-        # retrieval accuracy检索准确率（需不需要检索）
+        # retrieval accuracy检索准确率（需不需要检索），由于作者用的数据集中的1271条数据都需要检索，所以此值约高越好
         "retrieval_rate": round(total_retrieval / len(input_data) * 100, 1),
+        # match accuracy（匹配准确率），有多少条QA匹配上了
         "match_score": round(match_total / len(input_data) * 100, 1),
         "f1_score": round(f1_total / len(input_data) * 100, 1),
         "em_score": round(em_total / len(input_data) * 100, 1),
