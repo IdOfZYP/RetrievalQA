@@ -407,8 +407,8 @@ if __name__ == '__main__':
     main(args)
 
 # 200
-# 加model = torch.compile(model)
 # 100%|██████████| 200/200 [04:15<00:00,  1.28s/it]
+# 加model = torch.compile(model)
 # 100%|██████████| 200/200 [03:58<00:00,  1.19s/it]
 # 加model = torch.compile(model)，attn_implementation="sdpa"
 # 100%|██████████| 200/200 [03:36<00:00,  1.08s/it]
