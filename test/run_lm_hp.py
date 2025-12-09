@@ -202,7 +202,7 @@ def load_model(args):
         attn_implementation="sdpa"  # 显式指定使用 PyTorch 原生加速关注力
     )
 
-    model = torch.compile(model)
+    model = torch.compile(model, dynamic=True)
 
     # 创建pipeline
     pipe = pipeline(
@@ -412,3 +412,5 @@ if __name__ == '__main__':
 # 100%|██████████| 200/200 [03:58<00:00,  1.19s/it]
 # 加model = torch.compile(model)，attn_implementation="sdpa"
 # 100%|██████████| 200/200 [03:36<00:00,  1.08s/it]
+# model = torch.compile(model, dynamic=True)，attn_implementation="sdpa"
+# 100%|██████████| 200/200 [03:37<00:00,  1.09s/it]
