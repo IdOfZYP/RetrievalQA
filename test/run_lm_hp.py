@@ -198,8 +198,11 @@ def load_model(args):
         trust_remote_code=True,
         torch_dtype=torch.float16,
         device_map="auto",
-        low_cpu_mem_usage=True
+        low_cpu_mem_usage=True,
+        attn_implementation="sdpa"  # 显式指定使用 PyTorch 原生加速关注力
     )
+
+    model = torch.compile(model)
 
     # 创建pipeline
     pipe = pipeline(
@@ -391,7 +394,7 @@ if __name__ == '__main__':
     parser.add_argument('--max_tokens', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=1)
     parser.add_argument('--doc_top_n', type=int, default=5)
-    parser.add_argument('--limit_input', type=int, default=0)
+    parser.add_argument('--limit_input', type=int, default=200)
     parser.add_argument('--prompt_method', type=str, default="vanilla")
     parser.add_argument('--seed', type=int, default=20)
     parser.add_argument('--temperature', type=float, default=0.0)
@@ -402,3 +405,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args)
+
+# 200
+# 加model = torch.compile(model)
+# 100%|██████████| 200/200 [04:15<00:00,  1.28s/it]
+# 100%|██████████| 200/200 [03:58<00:00,  1.19s/it]
+# 加model = torch.compile(model)，attn_implementation="sdpa"
+# 100%|██████████| 200/200 [03:36<00:00,  1.08s/it]
